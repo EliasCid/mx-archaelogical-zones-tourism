@@ -2,6 +2,7 @@
 import requests
 import polars as pl
 import os
+from datetime import date
 
 # Download data using requests
 url = "https://repodatos.atdt.gob.mx/api_update/inah/visitantes_zonas_arqueologicas/INAH_visitantes_zonas_general_ok.csv"
@@ -22,6 +23,13 @@ resp.raise_for_status()
 
 # Load dataset using Polars
 df = pl.read_csv(resp.content)
+
+# Add metadata
+today = date.today()
+df = df.with_columns(
+    pl.lit(url).alias('source'),
+    pl.lit(today).alias('processed_date')
+)
 
 # Create folder for saving dataset
 current_path = os.path.dirname(os.path.dirname(__file__))
